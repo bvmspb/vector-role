@@ -1,0 +1,25 @@
+---
+# tasks file for vector-role
+- name: Vector - Get vector distribs
+  block:
+    - name: Vector - Get vector distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/latest/vector_{{ vector_version }}_amd64.deb"
+        dest: "./vector-latest.deb"
+        mode: "a+rw"
+  rescue:
+    - name: Vector - Get vector latest distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/latest/vector_latest-1_amd64.deb"
+        dest: "./vector-latest.deb"
+        mode: "a+rw"
+- name: Vector - Install vector package
+  become: true
+  ansible.builtin.apt:
+    deb: "./vector-latest.deb"
+  notify: Vector - Restart vector service
+- name: Vector - Flush handlers
+  ansible.builtin.meta: flush_handlers
+- name: Vector - Pause for 5 seconds for service to restart
+  ansible.builtin.pause:
+    seconds: 5
